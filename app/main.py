@@ -20,4 +20,3 @@ def predict(input_string: str):
     # Basit bir hashing logic örneği
     hash_idx = int(hashlib.md5(input_string.encode()).hexdigest(), 16) % 1000
     return {"input": input_string, "hash_index": hash_idx}
-
