@@ -15,4 +15,6 @@ jobs:
       - name: Code Analysis (Linting)
         run: flake8 app/ # Kod stilini kontrol eder
       - name: Run Unit Tests
-        run: pytest tests/test_code.py # Fonksiyonları test eder
+        run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          pytest tests/test_code.py
