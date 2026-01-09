@@ -1,20 +1,44 @@
-name: MLOps Commit Stage
-on: [push, pull_request]
+name: MLOps CI-CD Pipeline
+
+on: [push]
 
 jobs:
+  # --- PART 1: COMMIT STAGE ---
   commit-stage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-      - name: Install dependencies
-        run: pip install flake8 pytest
-      - name: Code Analysis (Linting)
-        run: flake8 app/ # Kod stilini kontrol eder
-      - name: Run Unit Tests
+      - name: Install Dependencies
+        run: pip install flake8 pytest fastapi uvicorn requests httpx
+      - name: Linting
+        run: flake8 app/
+      - name: Unit Tests
         run: |
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           pytest tests/test_code.py
+
+  # --- PART 2: DEPLOYMENT & ACCEPTANCE GATE ---
+  deployment-stage:
+    needs: commit-stage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run Component Tests
+        run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          pytest tests/test_component.py
+
+      - name: Build Docker Image (Package Once)
+        run: docker build -t my-ml-service .
+
+      - name: Run Container & Smoke Test (Deployment Verification)
+        run: |
+          docker run -d -p 8000:8000 --name ml-app my-ml-service
+          sleep 5
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          pytest tests/test_smoke.py
