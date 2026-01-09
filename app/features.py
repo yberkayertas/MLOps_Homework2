@@ -10,6 +10,5 @@ def get_hashing_index(input_string: str, num_buckets: int = 1000):
 
 # #Sabotage
 # def get_hashing_index(input_string: str, num_buckets: int = 1000):
-    
 #     return (int(hashlib.md5(input_string.encode()).hexdigest(), 16) % num_buckets) + 99999
 
